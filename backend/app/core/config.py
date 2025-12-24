@@ -6,5 +6,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "allow"  # Allow extra env vars like GEMINI_API_KEY without defining them
 
 settings = Settings()
