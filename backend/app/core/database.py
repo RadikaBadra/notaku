@@ -7,7 +7,6 @@ async def connect_to_mongo():
     global client
     client = AsyncIOMotorClient(settings.MONGODB_URI)
     try:
-        # Ping the database to ensure connection
         await client.admin.command('ping')
         print("MongoDB connected successfully!")
     except Exception as e:
