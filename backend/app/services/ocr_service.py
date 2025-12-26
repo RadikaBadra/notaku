@@ -1,4 +1,7 @@
 from paddleocr import PaddleOCR
+from fastapi import UploadFile
+import tempfile
+import os
 
 ocr = PaddleOCR(
     use_doc_orientation_classify=False,
@@ -6,12 +9,24 @@ ocr = PaddleOCR(
     use_textline_orientation=False,
 )
 
-def extract_text_from_image(image_path: str) -> list[str]:
-    result = ocr.predict(image_path)
+async def extract_text_from_image(image: UploadFile) -> list[str]:
+    
+    suffix = os.path.splitext(image.filename)[-1]
 
-    texts: list[str] = []
-    for res in result:
-        if "rec_texts" in res and isinstance(res["rec_texts"], list):
-            texts.extend(res["rec_texts"])
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        content = await image.read()
+        tmp.write(content)
+        tmp_path = tmp.name
 
-    return texts
+    try:
+        result = ocr.predict(tmp_path)
+
+        texts: list[str] = []
+        for res in result:
+            if "rec_texts" in res and isinstance(res["rec_texts"], list):
+                texts.extend(res["rec_texts"])
+
+        return texts
+
+    finally:
+        os.remove(tmp_path)
