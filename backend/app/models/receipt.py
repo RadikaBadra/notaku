@@ -18,6 +18,7 @@ class ReceiptCreate(Receipt):
 
 class ReceiptInDB(Receipt):
   id: str = Field(..., alias="_id")
+  user_id: str
   
   class Config:
     populate_by_name = True
